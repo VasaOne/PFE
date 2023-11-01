@@ -1,0 +1,15 @@
+---
+
+communication:
+  baudrate : 9600 
+  port : "/dev/ttyACM0"
+  proc : "I2C"
+
+cam :
+  port : "/dev/ttyUSB0"
+  height : 640
+  width : 600
+  baudrate : 600 
+
+tracking :
+  algorithme : "yolo"

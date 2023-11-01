@@ -1,9 +1,15 @@
+import yaml
+import sys
+import os
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
+
+
 def generate_launch_description() :
     ld = LaunchDescription()
-
+    
     proc_node = Node( package="img_proc"  , executable="img_node", name="img_node")
     com_node  = Node( package="bot_driver", executable="com_node", name="com_node")
     cam_node  = Node( package="bot_driver", executable="cam_node", name="cam_node")
@@ -13,4 +19,8 @@ def generate_launch_description() :
 
     return ld
 
-
+def yalm_manager():
+    conf = open('../config/test.yaml', 'r')
+    data = yaml.safe_load(conf)
+    print(data)
+    return data
