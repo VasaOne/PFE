@@ -1,13 +1,17 @@
 #include "rclcpp/rclcpp.hpp"
-
+#include "com_std.h"
 
 class comUc : public rclcpp::Node {
 
 	public :
 	
-	comUc() : Node("uC_node") {
+	comUc() : Node("uC_node"), com_std() {
 		RCLCPP_INFO(this->get_logger(), "uC_node init");
+		com_std.for_center();
 	}
+
+	private :
+	ComSTD com_std;
 
 };
 

@@ -2,14 +2,24 @@ cmake_minimum_required(VERSION 3.8)
 project(bot_driver)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  #add_compile_options(-Wall -Wextra -Wpedantic)
+  #add_compile_options( )
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(CppLinuxSerial REQUIRED)
 # uncomment the following section in order to fill in
-add_executable(comUc src/uC_com/uC_com.cpp)
+
+include_directories( src/uC_com/com_std )
+
+add_executable(comUc 
+	src/uC_com/uC_com.cpp
+	src/uC_com/com_std/con_std.cpp
+	src/uC_com/com_std/com_std.h	
+	)
+target_link_libraries(comUc CppLinuxSerial::CppLinuxSerial)
 
 ament_target_dependencies(comUc rclcpp)
 install(TARGETS comUc DESTINATION lib/${PROJECT_NAME})
