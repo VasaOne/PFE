@@ -10,6 +10,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(CppLinuxSerial REQUIRED)
+find_package(sensor_msgs REQUIRED)
 # uncomment the following section in order to fill in
 
 include_directories( src/uC_com/com_std )
@@ -19,9 +20,17 @@ add_executable(comUc
 	src/uC_com/com_std/con_std.cpp
 	src/uC_com/com_std/com_std.h	
 	)
+
+add_executable( cam_com
+	src/cam_com/cam_com.cpp
+	)
+
 target_link_libraries(comUc CppLinuxSerial::CppLinuxSerial)
 
+ament_target_dependencies(cam_com rclcpp sensor_msgs)
 ament_target_dependencies(comUc rclcpp)
+
+install(TARGETS cam_com DESTINATION lib/${PROJECT_NAME})
 install(TARGETS comUc DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}/)
 
