@@ -11,6 +11,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(CppLinuxSerial REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(cv_bridge REQUIRED)
+
+
 # uncomment the following section in order to fill in
 
 include_directories( src/uC_com/com_std )
@@ -26,6 +30,7 @@ add_executable( cam_com
 	)
 
 target_link_libraries(comUc CppLinuxSerial::CppLinuxSerial)
+ament_target_dependencies(cam_com OpenCV cv_bridge sensor_msgs)
 
 ament_target_dependencies(cam_com rclcpp sensor_msgs)
 ament_target_dependencies(comUc rclcpp)
