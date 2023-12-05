@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
-from sensors_msgs import Image
-from std_msgs import String
+from sensor_msgs.msg import Image
+from std_msgs.msg import String
 from cv_bridge import CvBridge
 import cv2 as cv 
 import sys
@@ -11,15 +11,18 @@ class BotShell(cmd.Cmd):
     intro = "Bot shell started. Type help or ? to list commands. \n"
 
 
-    def __init__(self, pub):
+    def __init__(self, pub_img, pub_order):
         super().__init__()
-        self.publisher = pub
+        self.publisher_img = pub_img
+        self.publisher_order = pub_order
 
 
     def do_moov(self, arg):
         #arg could be left, right, backward, forward
         msg = String()
         msg.data = str(arg)
+
+        self.publisher_order.publish(msg)
         print("bot mooving" + str(arg))
 
 
@@ -35,7 +38,7 @@ class BotShell(cmd.Cmd):
         image_message = bridge.cv2_to_imgmsg(cv_image, encoding="mono8")
 
         #send image through topic to YoloNode
-        publisher.publish(image_message)
+        self.publisher_img.publish(image_message)
         print("send images to bot")
 
 
@@ -53,8 +56,9 @@ class ShellNode(Node):
 
     def __init__(self):
         super().__init__("shell_node")
-        self.puiblisher = self.create_publisher(Image, "msg_topic", 999)
-        shell = BotShell()
+        self.publisher_img = self.create_publisher(Image, "msg_topic", 999)
+        self.publisher_order = self.create_publisher(String, "order_topic", 999)
+        shell = BotShell(self.publisher_img, self.publisher_order)
         shell.cmdloop()
 
 
