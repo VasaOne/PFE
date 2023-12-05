@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
+from std_msgs.msg import Int8
 from cv_bridge import CvBridge
 import cv2 as cv 
 import sys
@@ -17,13 +17,28 @@ class BotShell(cmd.Cmd):
         self.publisher_order = pub_order
 
 
-    def do_moov(self, arg):
+    def do_moov(self, param):
         #arg could be left, right, backward, forward
-        msg = String()
-        msg.data = str(arg)
-
+        msg = Int8()
+        arg = str(param)
+        if (arg == "forward") :
+            msg.data = 4
+        elif(arg == "backward"):
+            msg.data = 3
+        elif(arg == "for_right"):
+            msg.data = 5
+        elif(arg == "for_left"):
+            msg.data = 6
+        elif(arg == "back_right"):
+            msg.data = 7
+        elif(arg == "back_left"):
+            msg.data = 8
+        elif(arg == "stop"):
+            msg.data = 0
+        else :
+            msg.data = 0 #by default it sends a stop
         self.publisher_order.publish(msg)
-        print("bot mooving" + str(arg))
+        print("bot mooving" + arg)
 
 
     def do_img(self, arg):
@@ -57,7 +72,7 @@ class ShellNode(Node):
     def __init__(self):
         super().__init__("shell_node")
         self.publisher_img = self.create_publisher(Image, "msg_topic", 999)
-        self.publisher_order = self.create_publisher(String, "order_topic", 999)
+        self.publisher_order = self.create_publisher(Int8, "order_topic", 999)
         shell = BotShell(self.publisher_img, self.publisher_order)
         shell.cmdloop()
 

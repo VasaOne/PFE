@@ -13,7 +13,7 @@ find_package(CppLinuxSerial REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
-
+find_package(std_msgs REQUIRED)
 
 # uncomment the following section in order to fill in
 
@@ -33,7 +33,7 @@ target_link_libraries(comUc CppLinuxSerial::CppLinuxSerial)
 ament_target_dependencies(cam_com OpenCV cv_bridge sensor_msgs)
 
 ament_target_dependencies(cam_com rclcpp sensor_msgs)
-ament_target_dependencies(comUc rclcpp)
+ament_target_dependencies(comUc rclcpp std_msgs)
 
 install(TARGETS cam_com DESTINATION lib/${PROJECT_NAME})
 install(TARGETS comUc DESTINATION lib/${PROJECT_NAME})
