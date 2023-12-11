@@ -21,20 +21,12 @@ class comUc : public rclcpp::Node {
 				RCLCPP_INFO(this->get_logger(), "nothing to do");
 				break;
 			case 1:
-				RCLCPP_INFO(this->get_logger(), "moov right");
-				// not yet
-				break;
-			case 2:
-				RCLCPP_INFO(this->get_logger(), "moov left");
-				// not yet
-				break;
-			case 3:
-				RCLCPP_INFO(this->get_logger(), "moov back");
-				com_std.back_center();
-				break;
-			case 4:
 				RCLCPP_INFO(this->get_logger(), "moov forward");
 				com_std.for_center();
+				break;
+			case 11:
+				RCLCPP_INFO(this->get_logger(), "moov backward");
+				com_std.back_center();
 				break;
 			case 5:
 				RCLCPP_INFO(this->get_logger(), "moov forward right");
@@ -44,13 +36,21 @@ class comUc : public rclcpp::Node {
 				RCLCPP_INFO(this->get_logger(), "moov forward left");
 				com_std.for_left();
 				break;
-			case 7:
+			case 15:
 				RCLCPP_INFO(this->get_logger(), "moov backward right");
 				com_std.back_right();
 				break;
-			case 8:
+			case 16:
 				RCLCPP_INFO(this->get_logger(), "moov backward left");
 				com_std.back_left();
+				break;
+			case 7:
+				RCLCPP_INFO(this->get_logger(), "moov right");
+				//not yet
+				break;
+			case 8:
+				RCLCPP_INFO(this->get_logger(), "moov left");
+				//not yet
 				break;
 			default:
 				RCLCPP_ERROR(this->get_logger(), "wrong message value: %i", msg.data);

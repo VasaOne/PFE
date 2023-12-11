@@ -5,6 +5,7 @@ from std_msgs.msg import Int8
 from cv_bridge import CvBridge
 import cv2 as cv 
 import sys
+import os
 import cmd 
 
 class BotShell(cmd.Cmd):
@@ -22,17 +23,17 @@ class BotShell(cmd.Cmd):
         msg = Int8()
         arg = str(param)
         if (arg == "forward") :
-            msg.data = 4
+            msg.data = 1
         elif(arg == "backward"):
-            msg.data = 3
+            msg.data = 11
         elif(arg == "for_right"):
             msg.data = 5
         elif(arg == "for_left"):
             msg.data = 6
         elif(arg == "back_right"):
-            msg.data = 7
+            msg.data = 15
         elif(arg == "back_left"):
-            msg.data = 8
+            msg.data = 16
         elif(arg == "stop"):
             msg.data = 0
         else :
@@ -43,14 +44,14 @@ class BotShell(cmd.Cmd):
 
     def do_img(self, arg):
         #load image as cvMat obj
-        img = cv.imread(cv.samples.findFile("human.jpg"), IMREAD_GRAYSCALE)
+        img = cv.imread(cv.samples.findFile("src/PFE/imgLib/humans.jpeg"), cv.IMREAD_GRAYSCALE)
         cv.imshow("photo to send", img)
         cv.waitKey(0)
         cv.destroyAllWindows()
 
         #convert img to ros2 msg
         bridge = CvBridge()
-        image_message = bridge.cv2_to_imgmsg(cv_image, encoding="mono8")
+        image_message = bridge.cv2_to_imgmsg(img, encoding="mono8")
 
         #send image through topic to YoloNode
         self.publisher_img.publish(image_message)
@@ -71,6 +72,7 @@ class ShellNode(Node):
 
     def __init__(self):
         super().__init__("shell_node")
+        print(os.getcwd())
         self.publisher_img = self.create_publisher(Image, "msg_topic", 999)
         self.publisher_order = self.create_publisher(Int8, "order_topic", 999)
         shell = BotShell(self.publisher_img, self.publisher_order)
