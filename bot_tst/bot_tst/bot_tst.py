@@ -1,21 +1,24 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int8
+from std_msgs.msg import Int8, Bool
 from cv_bridge import CvBridge
 import cv2 as cv 
 import sys
 import os
 import cmd 
 
+
 class BotShell(cmd.Cmd):
     intro = "Bot shell started. Type help or ? to list commands. \n"
 
 
-    def __init__(self, pub_img, pub_order):
+    def __init__(self, pub_img, pub_order, pub_rec):
         super().__init__()
         self.publisher_img = pub_img
         self.publisher_order = pub_order
+        self.publisher_rec = pub_rec
+        self.record = False
 
 
     def do_moov(self, param):
@@ -57,9 +60,18 @@ class BotShell(cmd.Cmd):
         self.publisher_img.publish(image_message)
         print("send images to bot")
 
-
     def do_see(self, arg):
         print("bot start streaming")
+    
+    def do_record(self, arg):
+        self.record = not self.record
+        print("record state:" + str(self.record))
+
+        msg = Bool()
+        msg.data = self.record
+        self.publisher_rec.publish(msg)
+        
+
 
 
     def do_quit(self,arg):
@@ -75,7 +87,8 @@ class ShellNode(Node):
         print(os.getcwd())
         self.publisher_img = self.create_publisher(Image, "msg_topic", 999)
         self.publisher_order = self.create_publisher(Int8, "order_topic", 999)
-        shell = BotShell(self.publisher_img, self.publisher_order)
+        self.publisher_rec = self.create_publisher(Bool, "manager_topic", 999)
+        shell = BotShell(self.publisher_img, self.publisher_order, self.publisher_rec)
         shell.cmdloop()
 
 
