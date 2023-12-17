@@ -5,9 +5,9 @@ from std_msgs.msg import Int8, Bool
 from cv_bridge import CvBridge
 import cv2 as cv 
 import sys
+import time
 import os
 import cmd 
-
 
 class BotShell(cmd.Cmd):
     intro = "Bot shell started. Type help or ? to list commands. \n"
@@ -43,12 +43,30 @@ class BotShell(cmd.Cmd):
             msg.data = 0 #by default it sends a stop
         self.publisher_order.publish(msg)
         print("bot mooving" + arg)
+    
+    def do_video(self, arg):
+        #load and send video
+        video_obj = cv.VideoCapture("video.mp4")
+        bridge = CvBridge()
 
+        print("start video")
+
+        while video_obj.isOpened() :
+            sucess, frame = video_obj.read()
+            if sucess :
+                #send to topic
+                image_message = bridge.cv2_to_imgmsg(frame, encoding ="rgb8")
+                self.publisher_img.publish(image_message)
+                time.sleep(0.01)
+            else :
+                print("error occured")
+                break
+        print("video finished")
 
     def do_img(self, arg):
         #load image as cvMat obj
         img = cv.imread(cv.samples.findFile("src/PFE/imgLib/humans.jpeg"), cv.IMREAD_GRAYSCALE)
-        cv.imshow("photo to send", img)
+        cv.imshow("photo to send press 0 to continue", img)
         cv.waitKey(0)
         cv.destroyAllWindows()
 
