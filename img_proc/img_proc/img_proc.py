@@ -74,7 +74,7 @@ class YoloNode(Node):
             for i in range(len(results[0].boxes.cls)):
                 if results[0].boxes.cls[i] == 0: #means it is a human
                     self.get_logger().info("human detected")
-                    if results[0].boxes.id[i] == 1:
+                    if results[0].boxes.id[i] == 4:
                         self.send_order(results[0].boxes.xywh[i])
                         return 1
         else :
