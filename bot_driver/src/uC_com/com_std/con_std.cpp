@@ -41,6 +41,11 @@ ComSTD::ComSTD() : serial_port("/dev/ttyACM0", BaudRate::B_115200, NumDataBits::
 	return;
 
 }
+void ComSTD::stop(){
+	std::vector<uint8_t> vect= {0,0,0};
+	data_wrapp(vect, 1, 1, 0);
+	serial_port.WriteBinary(vect);
+}
 
 void ComSTD::for_right(){
 	std::vector<uint8_t> vect= {0,0,0};

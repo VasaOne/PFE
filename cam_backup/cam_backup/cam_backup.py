@@ -11,7 +11,7 @@ class CamBackup(Node):
             self.video_path = "/dev/video0"
             self.video_capture = cv2.VideoCapture(self.video_path, cv2.CAP_V4L2)
             self.bridge = CvBridge()
-            self.publisher = self.create_publisher(Image ,"msg_topic",10)
+            self.publisher = self.create_publisher(Image ,"msg_topic",3)
             if self.video_capture.isOpened():
                 self.get_logger().info("camera detected, video stream started")
                 self.cam_reader()
@@ -19,8 +19,8 @@ class CamBackup(Node):
                 self.get_logger().error("camera not detected")
 
         def cam_reader(self):
-            window_title = "USB_CAM"
-            window_handle = cv2.namedWindow( window_title, cv2.WINDOW_AUTOSIZE )
+#            window_title = "USB_CAM"
+#            window_handle = cv2.namedWindow( window_title, cv2.WINDOW_AUTOSIZE )
             while True:
                 #read value from cam
                 ret_val, frame_cv = self.video_capture.read()
@@ -28,14 +28,14 @@ class CamBackup(Node):
                 frame_ros = self.bridge.cv2_to_imgmsg(frame_cv, encoding='rgb8')
                 #send through msg_topic
                 self.publisher.publish(frame_ros)
-                if cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE) >= 0:
-                    cv2.imshow(window_title, frame_cv)
-                else:
-                    break
-                keyCode = cv2.waitKey(10) & 0xFF
+#                if cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE) >= 0:
+#                    cv2.imshow(window_title, frame_cv)
+#                else:
+#                    break
+#                keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
-                if keyCode == 27 or keyCode == ord('q'):
-                    break
+ #               if keyCode == 27 or keyCode == ord('q'):
+ #                   break
 
             self.video_capture.release()
             self.destroyAllWindows()

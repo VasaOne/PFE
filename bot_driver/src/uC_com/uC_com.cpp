@@ -9,7 +9,7 @@ class comUc : public rclcpp::Node {
 	comUc() : Node("uC_node"), com_std() {
 		RCLCPP_INFO(this->get_logger(), "uC_node init");
 		sub = this->create_subscription<std_msgs::msg::Int8>("order_topic", 9, std::bind(&comUc::order_selector,this, std::placeholders::_1));
-		com_std.for_center();
+//com_std.for_center();
 	}
 
 	private :
@@ -19,6 +19,7 @@ class comUc : public rclcpp::Node {
 		switch(msg.data){
 			case 0: 
 				RCLCPP_INFO(this->get_logger(), "nothing to do");
+				com_std.stop();
 				break;
 			case 1:
 				RCLCPP_INFO(this->get_logger(), "moov forward");

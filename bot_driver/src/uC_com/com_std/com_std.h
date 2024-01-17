@@ -11,6 +11,7 @@ class ComSTD {
 	void back_right();
 	void back_center();
 	void back_left();
+	void stop();
 
 	private : 
 	mn::CppLinuxSerial::SerialPort serial_port;

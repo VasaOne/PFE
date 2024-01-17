@@ -21,14 +21,14 @@ class YoloNode(Node):
         self.is_recording = True
         self.recordVideo = []
         self.img_dim = (750, 1000)
-        self.model = YOLO('yolov8n.pt')
+        self.model = YOLO('best.pt')
         self.bridge = CvBridge()
         self.get_logger().info("yolo node initialized")
 
     def record_manager(self, msg_bool):
         if not msg_bool.data : #if we stop a recording 
             #store the video
-            video_obj = cv.VideoWriter("record.avi", cv.VideoWriter_fourcc(*"XVID"), 30, self.img_dim)
+            video_obj = cv.VideoWriter("record.avi", cv.VideoWriter_fourcc(*"XVID"), 10, self.img_dim)
             for frame in self.recordVideo :
                 print(str(self.img_dim) + " " + str(frame.shape))
                 frame_color = cv.cvtColor(frame,cv.COLOR_RGB2BGR)
@@ -45,14 +45,15 @@ class YoloNode(Node):
         self.get_logger().info("image received")
         
         frame = self.bridge.imgmsg_to_cv2(img, desired_encoding='rgb8')
-        results = self.model.track(frame, persist=True)
+        results = self.model.track(frame, persist=True, conf = 0.6)
         
         if self.is_recording : #for recording part
             annoted_frame = results[0].plot()
             self.recordVideo.append(annoted_frame)
         
         self.img_dim = (frame.shape[1], frame.shape[0])
-        self.choose_obj2(results)
+        #self.choose_obj2(results)
+        self.debug_obj(results)
 
 
 
@@ -61,25 +62,39 @@ class YoloNode(Node):
         for i in range(len(results[0].boxes.cls)):
         
             if results[0].boxes.cls[i] == 0: #means it is human
-                self.get_logger().info("human detected! classes: " + str(results[0].boxes.cls[i]))
-                #if results[0].boxes.id[i] == 1:
-                #    self.send_order(results[0].boxes.xywh[i])
-                #    return 1
+                self.get_logger().info("duster detected! classes: " + str(results[0].boxes.cls[i]))
+                if results[0].boxes.id[i] == 1:
+                    self.send_order(results[0].boxes.xywh[i])
+                    return 1
             else :
-                self.get_logger().info("no human detected")
+                self.get_logger().info("no duster detected")
 
     def choose_obj2(self, results):
         if results[0].boxes.id is not None :
-            self.get_logger().info("tracking available")
+            self.get_logger().info("tracking available len of classes: " + str(len(results[0].boxes.cls)))
             for i in range(len(results[0].boxes.cls)):
-                if results[0].boxes.cls[i] == 0: #means it is a human
-                    self.get_logger().info("human detected")
-                    if results[0].boxes.id[i] == 4:
+                self.get_logger().info("classes detected : " + str(results[0].boxes.cls[i]))
+                if results[0].boxes.cls[i] == 0: #means it is a duster
+                    self.get_logger().info("duster detected id: ")
+                    if results[0].boxes.id[i] == 0:
+                        self.get_logger().info("send order forduster tracking")
                         self.send_order(results[0].boxes.xywh[i])
                         return 1
         else :
-            self.get_logger().info("tracking unable")
+            self.get_logger().info("tracking unable, please relaunch ros2")
 
+    def debug_obj(self, results):
+        self.get_logger().info("detected " + str(len(results[0].boxes.cls)) + " classes")
+        for i in range(len(results[0].boxes.cls)):
+            self.get_logger().info("classes " + str(i) + " val = " + str(results[0].boxes.cls[i]))
+
+        if results[0].boxes.id is not None :
+            self.get_logger().info("tracking available, id llen: " + str(len(results[0].boxes.cls)) )
+            for i in range(len(results[0].boxes.cls)):
+                self.get_logger().info("id " + str(i) + " val = " + str(results[0].boxes.id[i]))
+
+        else :
+            self.get_logger().info("tracking unable")
 
 
 
