@@ -23,6 +23,7 @@ class YoloNode(Node):
         self.img_dim = (750, 1000)
         self.model = YOLO('best.pt')
         self.bridge = CvBridge()
+        self.id_follow = None
         self.get_logger().info("yolo node initialized")
 
     def record_manager(self, msg_bool):
@@ -45,19 +46,18 @@ class YoloNode(Node):
         self.get_logger().info("image received")
         
         frame = self.bridge.imgmsg_to_cv2(img, desired_encoding='rgb8')
-        results = self.model.track(frame, persist=True, conf = 0.6)
+        results = self.model.track(frame, persist=True, conf = 0.4)
         
         if self.is_recording : #for recording part
             annoted_frame = results[0].plot()
             self.recordVideo.append(annoted_frame)
         
         self.img_dim = (frame.shape[1], frame.shape[0])
-        #self.choose_obj2(results)
-        self.debug_obj(results)
+        self.choose_obj(results)
 
 
 
-    def choose_obj(self, results):
+    def choose_obj3(self, results):
         self.get_logger().info( "lenght of boxes: " + str(len(results[0].boxes.cls)) )
         for i in range(len(results[0].boxes.cls)):
         
@@ -96,8 +96,31 @@ class YoloNode(Node):
         else :
             self.get_logger().info("tracking unable")
 
+    def choose_obj(self, results):
+        if len(results[0].boxes.cls) == 0 : #means nothing identified
+            self.send_stop()
+            return 
+        if results[0].boxes.id is not None :
+            self.get_logger().info("tracking available")
 
+            if self.id_follow is not None : # robot is following someone
+                for i in range(len(results[0].boxes.id)):
+                    if results[0].boxes.id[i] == self.id_follow :
+                        self.send_order(results[0].boxes.xywh[i])
+            else : #robot is following now one, it will follow first obj
+                self.id_follow = results[0].boxes.id[0]
+                self.get_logger().info("follow new id: " + str(self.id_follow))
+                self.send_order(results[0].boxes.xywh[0])
+        else :
+            self.get_logger().info("tracking unable, folow first duster")
+            self.id_follow = None #reset id_folow
+            self.send_order(results[0].boxes.xywh[0])
 
+    def send_stop(self):
+        msg = Int8()
+        msg.data = 0
+        self.get_logger().info("robot stoped")
+        self.publisher.publish(msg)
 
     def send_order(self, box_dim): #dim: x,y,w,h
         x_center = box_dim[0]
@@ -106,7 +129,7 @@ class YoloNode(Node):
         h = box_dim[3]
         
         msg = Int8()
-        msg.data = 0 #means stop
+        msg.data = 0 #means stop, by default robot wants to stop
         #surface part, I know it is ugly 
         if ( (w * h) + THRESHOLD_DIM < 400 * 600) : 
             #moov forward
