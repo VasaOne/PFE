@@ -30,9 +30,9 @@ add_executable( cam_com
 	)
 
 target_link_libraries(comUc CppLinuxSerial::CppLinuxSerial)
-ament_target_dependencies(cam_com OpenCV cv_bridge sensor_msgs)
+#ament_target_dependencies(cam_com OpenCV cv_bridge sensor_msgs)
 
-ament_target_dependencies(cam_com rclcpp sensor_msgs)
+ament_target_dependencies(cam_com OpenCV cv_bridge rclcpp sensor_msgs)
 ament_target_dependencies(comUc rclcpp std_msgs)
 
 install(TARGETS cam_com DESTINATION lib/${PROJECT_NAME})

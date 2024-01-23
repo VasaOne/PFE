@@ -14,8 +14,13 @@ class comUc : public rclcpp::Node {
 
 	private :
 	ComSTD com_std;
+	int current_data = 0;
 	rclcpp::Subscription<std_msgs::msg::Int8>::SharedPtr sub;
 	void order_selector(std_msgs::msg::Int8 msg){
+		// no need to send order if it is already the current one
+		if (msg.data == this->current_data){ 
+			return ; 
+		}
 		switch(msg.data){
 			case 0: 
 				RCLCPP_INFO(this->get_logger(), "nothing to do");
@@ -56,6 +61,7 @@ class comUc : public rclcpp::Node {
 			default:
 				RCLCPP_ERROR(this->get_logger(), "wrong message value: %i", msg.data);
 		}
+		this->current_data = msg.data;
 		RCLCPP_INFO(this->get_logger(), "order received: %i", msg.data);
 		
 

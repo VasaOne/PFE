@@ -16,7 +16,7 @@ class YoloNode(Node):
     def __init__(self):
         super().__init__('yolo_node')
         self.publisher = self.create_publisher(Int8,"order_topic" ,10)
-        self.subscription = self.create_subscription(Image, "msg_topic" ,self.img_rcv ,10)
+        self.subscription = self.create_subscription(Image, "msg_topic" ,self.img_rcv ,1)
         self.subscription_record = self.create_subscription(Bool, "manager_topic", self.record_manager, 10)
         self.is_recording = True
         self.recordVideo = []
@@ -40,7 +40,6 @@ class YoloNode(Node):
             self.recordVideo = []
         self.is_recording = msg_bool.data
         self.get_logger().info("record state changed " + str(self.is_recording))
-        
 
     def img_rcv(self, img):
         self.get_logger().info("image received")
@@ -123,11 +122,11 @@ class YoloNode(Node):
         self.publisher.publish(msg)
 
     def send_order(self, box_dim): #dim: x,y,w,h
-        x_center = box_dim[0]
-        y_center = box_dim[1]
+        x_center = box_dim[0] + box_dim[2]/2
+        y_center = box_dim[1] + box_dim[3]/2
         w = box_dim[2]
         h = box_dim[3]
-        
+        self.get_logger().info("x_center: " + str(x_center) + " y_center: " + str(y_center) + "size: " + str(self.img_dim[0]) + "," + str(self.img_dim[1]))
         msg = Int8()
         msg.data = 0 #means stop, by default robot wants to stop
         #surface part, I know it is ugly 
@@ -141,11 +140,11 @@ class YoloNode(Node):
             msg.data = 11
 
         #center part
-        if (x_center + THRESHOLD_X < self.img_dim[0]) :
+        if (x_center + THRESHOLD_X > self.img_dim[0]) :
             #moov right
             self.get_logger().info("moov right")
             msg.data += 4
-        elif (x_center - THRESHOLD_X > self.img_dim[1]):
+        elif (x_center - THRESHOLD_X < self.img_dim[1]):
             #moov left
             self.get_logger().info("moov left")
             msg.data += 5
