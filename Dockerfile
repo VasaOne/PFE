@@ -14,9 +14,9 @@ WORKDIR ../..
 
 # install ros2 basics
 RUN mkdir -p ~/workspace/ros2_ws/src
-WORKDIR ~/workspace
+WORKDIR ~/workspace/ros2_ws
 COPY best.pt .
-WORKDIR ros2_ws/src
+WORKDIR src
 COPY src/PFE/ .
 RUN git clone https://github.com/ros-perception/vision_opencv.git
 
@@ -28,8 +28,11 @@ RUN apt-get update && \
 	apt-get install -y python3-pip  
 
 RUN apt-get install libboost-all-dev libopencv-dev ros-humble-cv-bridge -y
+
+RUN pip3 install lap lapx
 	
 RUN pip3 install ultralytics \
 	opencv-python \
 	setuptools==58.2.0
+
 
